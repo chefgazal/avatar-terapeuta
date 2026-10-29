@@ -31,6 +31,7 @@
   --shadow:0 20px 50px -20px rgba(0,0,0,.6); color-scheme:dark;}
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{min-height:100%}
 body{
   margin:0; font-family:var(--body); font-size:16px; line-height:1.5; color:var(--ink);
@@ -166,6 +167,15 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .breath p{margin:0;font-size:.92rem;color:var(--ink-soft)}
 .breath b{color:var(--ink)}
 
+.contact{text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center}
+.c-eyebrow{margin:0;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.c-name{margin:2px 0 0;font-family:var(--display);font-weight:500;font-size:1.35rem}
+.c-role{margin:0;color:var(--ink)}
+.c-reg{margin:0 0 10px;font-size:.85rem;color:var(--ink-soft)}
+.c-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%}
+.c-btns .btn{text-decoration:none;text-align:center;flex:1 1 150px}
+.btn.wa{background:#1f9d57;color:#fff}
+.c-note{margin:8px 0 0;font-size:.78rem;color:var(--ink-soft)}
 footer{font-size:.78rem;color:var(--ink-soft);text-align:center;padding:4px 8px}
 footer a{color:inherit}
 .tools{display:flex;justify-content:flex-end;gap:8px}
@@ -203,7 +213,7 @@ footer a{color:inherit}
   <!-- INÍCIO -->
   <section class="panel" id="home">
     <h1 class="name" id="heroName">Rafael Zacarias</h1>
-    <p class="role">Psicanalista · avatar virtual de acolhimento</p>
+    <p class="role">Terapeuta Psicanalista · avatar virtual de acolhimento</p>
     <p class="greet">Olá. Este é um espaço para você ser escutado sem julgamentos. Escolha o que está sentindo e eu converso com você.</p>
     <button class="btn block" id="start">Falar com o avatar</button>
   </section>
@@ -217,7 +227,7 @@ footer a{color:inherit}
   </section>
 
   <!-- CONVERSA -->
-  <section id="talk" hidden style="display:flex;flex-direction:column;gap:14px">
+  <section id="talk" hidden style="display:none;flex-direction:column;gap:14px">
     <div class="crisis" id="crisis" hidden role="alert">
       <h3>Se você pode se machucar agora, peça ajuda neste momento</h3>
       <p>Não fique sozinho. Procure alguém de confiança e afaste objetos ou medicamentos que possa usar para se ferir.</p>
@@ -248,6 +258,18 @@ footer a{color:inherit}
     </div>
   </section>
 
+  <section class="panel contact" id="contact" aria-label="Contato com o profissional">
+    <p class="c-eyebrow">Atendimento com o profissional</p>
+    <h2 class="c-name">Rafael Zacarias</h2>
+    <p class="c-role">Terapeuta Psicanalista</p>
+    <p class="c-reg">Registro: CBPC 2022-6007</p>
+    <div class="c-btns">
+      <a class="btn wa" id="wa" href="#" target="_blank" rel="noopener">Falar no WhatsApp</a>
+      <a class="btn ghost" id="ig2" href="#" target="_blank" rel="noopener">Ver no Instagram</a>
+    </div>
+    <p class="c-note">Ao tocar, o WhatsApp abre com uma mensagem pronta. Você só decide se quer enviar.</p>
+  </section>
+
   <div class="tools">
     <button class="chip" id="voice" aria-pressed="true">Voz ligada</button>
   </div>
@@ -262,8 +284,11 @@ footer a{color:inherit}
 /* ===== Configuração: troque aqui nome e perfil ===== */
 const CONFIG = {
   nome: "Rafael Zacarias",
-  titulo: "Psicanalista",
-  instagram: "rafael_terapeura7"
+  titulo: "Terapeuta Psicanalista",
+  instagram: "rafael_terapeuta7",
+  instagramUrl: "https://www.instagram.com/rafael_terapeuta7?utm_source=qr&vrfl=MXdqNjN2OTc4Z2Y5OQ==",
+  whatsapp: "5567981888802",
+  mensagem: "Olá, Rafael! Vim pelo seu aplicativo e gostaria de conversar com você."
 };
 
 const SITUATIONS = [
@@ -329,7 +354,9 @@ document.title = "Avatar Terapeuta";
 $("brandName").textContent = CONFIG.nome;
 $("heroName").textContent = CONFIG.nome;
 document.querySelector(".role").textContent = CONFIG.titulo + " · avatar virtual de acolhimento";
-const ig = $("insta"); ig.textContent = "@" + CONFIG.instagram; ig.href = "https://www.instagram.com/" + CONFIG.instagram;
+const ig = $("insta"); ig.textContent = "@" + CONFIG.instagram; ig.href = CONFIG.instagramUrl;
+$("ig2").href = CONFIG.instagramUrl;
+$("wa").href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(CONFIG.mensagem);
 
 /* lista de situações */
 SITUATIONS.forEach(s=>{
