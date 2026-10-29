@@ -106,11 +106,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:10px}
 
 
 /* boneco animado por malha (WebGL) */
-.puppet{position:absolute;left:50%;bottom:-2px;height:420px;aspect-ratio:896/1200;margin-left:-0px;transform:translateX(-54%) translateZ(30px);
+.puppet{position:absolute;left:50%;bottom:-2px;height:420px;aspect-ratio:992/1200;margin-left:-0px;transform:translateX(-50%) translateZ(30px);
   filter:drop-shadow(0 18px 22px rgba(30,60,60,.35))}
 .puppet canvas,.puppet img{position:absolute;inset:0;width:100%;height:100%;display:block}
 .puppet [hidden]{display:none}
-.mouth{position:absolute;left:0;top:0;width:calc(62/896*100%);height:calc(38/1200*100%);transform-origin:50% 0;pointer-events:none;opacity:0}
+.mouth{position:absolute;left:0;top:0;width:calc(62/992*100%);height:calc(38/1200*100%);transform-origin:50% 0;pointer-events:none;opacity:0}
 .mouth span{position:absolute;inset:0;border-radius:0 0 50% 50%/0 0 100% 100%;
   background:radial-gradient(ellipse 70% 55% at 50% 100%,#c9645c 0 45%,transparent 46%),linear-gradient(#2a0d0b,#4a1a16);
   box-shadow:inset 0 3px 4px rgba(0,0,0,.5)}
@@ -491,12 +491,8 @@ $("voice").onclick = e=>{
 };
 
 /* ===== boneco animado: malha WebGL + diretor de expressões (fala, olhar, sobrancelhas, piscar, sorriso) ===== */
-const SPRITE_PARTS = 13;
-function loadSprite(){
-  return Promise.all(Array.from({length:SPRITE_PARTS},(_,i)=>fetch("s/"+i+".bin").then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})))
-    .then(b=>URL.createObjectURL(new Blob(b,{type:"image/webp"})));
-}
-const SW=896, SH=1200;
+function loadSprite(){ return Promise.resolve("avatar.webp?v=3"); }
+const SW=992, SH=1200;
 const puppet=$("puppet"), cv=$("gl"), mouth=$("mouth");
 let tiltX=0, tiltY=0, speakingNow=false;
 const world=$("world");
