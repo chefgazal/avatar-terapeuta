@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avatar Terapeuta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap">
+<style>
+/* Conceito: palco 3D suave. Avatar em perspectiva sobre orbes flutuantes em camadas; abaixo, fala legendada e escolha da situação. */
+:root{
+  --bg:#eef3f1; --bg2:#dfeaf0; --ink:#1f3338; --ink-soft:#4d6469;
+  --card:rgba(255,255,255,.62); --card-line:rgba(255,255,255,.85);
+  --sage:#7fa99b; --mist:#9fbfd3; --lav:#b9b2d9; --sand:#e7d6bd;
+  --accent:#3f7d78; --accent-ink:#ffffff; --alert:#b4533f; --alert-bg:#fbeae4;
+  --shadow:0 20px 50px -20px rgba(40,80,80,.35);
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1c20; --bg2:#16282f; --ink:#e6f0ee; --ink-soft:#a5bbbb;
+  --card:rgba(26,46,52,.66); --card-line:rgba(255,255,255,.08);
+  --sage:#4f7f73; --mist:#47677d; --lav:#6a6490; --sand:#7a6a52;
+  --accent:#7fc4b8; --accent-ink:#0b1a1c; --alert:#f0a08c; --alert-bg:#3a2420;
+  --shadow:0 20px 50px -20px rgba(0,0,0,.6); color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f1c20; --bg2:#16282f; --ink:#e6f0ee; --ink-soft:#a5bbbb;
+  --card:rgba(26,46,52,.66); --card-line:rgba(255,255,255,.08);
+  --sage:#4f7f73; --mist:#47677d; --lav:#6a6490; --sand:#7a6a52;
+  --accent:#7fc4b8; --accent-ink:#0b1a1c; --alert:#f0a08c; --alert-bg:#3a2420;
+  --shadow:0 20px 50px -20px rgba(0,0,0,.6); color-scheme:dark;}
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  margin:0; font-family:var(--body); font-size:16px; line-height:1.5; color:var(--ink);
+  background:linear-gradient(170deg,var(--bg) 0%,var(--bg2) 100%) fixed;
+  padding-block:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.app{max-width:520px;margin:0 auto;padding-block:14px 28px;display:flex;flex-direction:column;gap:14px;min-width:0}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-family:var(--display);font-size:1.05rem;font-weight:500;letter-spacing:.01em}
+.insta{font-size:.82rem;color:var(--ink-soft);text-decoration:none;padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--card-line)}
+.insta:hover{color:var(--accent)}
+
+/* palco 3D */
+.stage{
+  position:relative; height:430px; perspective:900px; border-radius:32px; overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%,rgba(255,255,255,.55),transparent 60%),
+    linear-gradient(160deg,color-mix(in srgb,var(--mist) 40%,transparent),color-mix(in srgb,var(--sage) 35%,transparent));
+  border:1px solid var(--card-line); box-shadow:var(--shadow);
+}
+.world{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .25s ease-out}
+.orb{position:absolute;border-radius:50%;filter:blur(.5px);
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.9),var(--c) 55%,transparent 72%);
+  opacity:.8;animation:float 9s ease-in-out infinite}
+.o1{--c:var(--lav);width:90px;height:90px;left:6%;top:12%;transform:translateZ(-60px)}
+.o2{--c:var(--sand);width:56px;height:56px;right:10%;top:20%;transform:translateZ(40px);animation-delay:-3s}
+.o3{--c:var(--sage);width:120px;height:120px;left:40%;top:-56px;transform:translateZ(-90px);animation-delay:-5s}
+.o4{--c:var(--mist);width:44px;height:44px;left:14%;bottom:22%;transform:translateZ(60px);animation-delay:-1s}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
+.floor{position:absolute;left:50%;bottom:10px;width:220px;height:34px;margin-left:-110px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(20,50,55,.32),transparent);transform:translateZ(0)}
+.avatar{position:absolute;left:50%;bottom:-8px;width:262px;margin-left:-131px;transform:translateZ(30px);
+  filter:drop-shadow(0 18px 22px rgba(30,60,60,.28));animation:breathe 5s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes breathe{0%,100%{scale:1}50%{scale:1.012 1.02}}
+#head{transform-box:fill-box;transform-origin:50% 90%;transition:transform .3s ease-out}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 5.2s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.08)}}
+#mouthOpen{opacity:0;transform-box:fill-box;transform-origin:center}
+.speaking #mouthOpen{opacity:1;animation:talk .38s ease-in-out infinite}
+.speaking #mouthSmile{opacity:0}
+@keyframes talk{0%,100%{transform:scaleY(.25)}35%{transform:scaleY(1)}65%{transform:scaleY(.5)}}
+
+.status{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--ink);
+  padding:6px 11px;border-radius:99px;background:var(--card);border:1px solid var(--card-line);backdrop-filter:blur(8px)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--sage)}
+.speaking .dot{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{transform:scale(1.5);opacity:.5}}
+
+
+/* retrato realista */
+.portrait{position:absolute;left:50%;bottom:0;width:232px;height:312px;margin-left:-116px;transform:translateZ(30px);
+  filter:drop-shadow(0 18px 24px rgba(30,60,60,.35));animation:breathe 5s ease-in-out infinite;transform-origin:50% 100%}
+.portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 0;border-radius:120px 120px 0 0;
+  -webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)}
+.ring{position:absolute;inset:-8px -8px 0;border:2px solid var(--accent);border-radius:128px 128px 0 0;opacity:0;pointer-events:none}
+.speaking .ring{animation:ring 2.2s ease-out infinite}
+.speaking .r2{animation-delay:1.1s}
+@keyframes ring{0%{opacity:.55;transform:scale(1)}100%{opacity:0;transform:scale(1.14)}}
+.wave{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:4px;height:22px;
+  padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--card-line);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s}
+.speaking .wave{opacity:1}
+.wave i{width:4px;height:6px;border-radius:3px;background:var(--accent);animation:bar .9s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.48s}
+@keyframes bar{0%,100%{height:5px}50%{height:20px}}
+.badge{position:absolute;right:14px;top:14px;font-size:.72rem;padding:6px 11px;border-radius:99px;color:var(--ink-soft);
+  background:var(--card);border:1px solid var(--card-line);backdrop-filter:blur(8px)}
+
+
+/* boneco animado por malha (WebGL) */
+.puppet{position:absolute;left:50%;bottom:-2px;height:420px;aspect-ratio:896/1200;margin-left:-0px;transform:translateX(-54%) translateZ(30px);
+  filter:drop-shadow(0 18px 22px rgba(30,60,60,.35))}
+.puppet canvas,.puppet img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.puppet [hidden]{display:none}
+.mouth{position:absolute;left:0;top:0;width:calc(62/896*100%);height:calc(38/1200*100%);transform-origin:50% 0;pointer-events:none;opacity:0}
+.mouth span{position:absolute;inset:0;border-radius:0 0 50% 50%/0 0 100% 100%;
+  background:radial-gradient(ellipse 70% 55% at 50% 100%,#c9645c 0 45%,transparent 46%),linear-gradient(#2a0d0b,#4a1a16);
+  box-shadow:inset 0 3px 4px rgba(0,0,0,.5)}
+
+/* painéis */
+.panel{background:var(--card);border:1px solid var(--card-line);border-radius:26px;padding:18px;backdrop-filter:blur(10px);box-shadow:var(--shadow)}
+.name{font-family:var(--display);font-size:1.45rem;font-weight:500;line-height:1.15;margin:0}
+.role{margin:2px 0 12px;color:var(--ink-soft);font-size:.9rem}
+.greet{margin:0 0 16px;font-size:1.02rem}
+.btn{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:600;border-radius:99px;padding:14px 22px;
+  background:var(--accent);color:var(--accent-ink);transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.06)}.btn:active{transform:scale(.97)}
+.btn.block{width:100%;font-size:1.05rem}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid color-mix(in srgb,var(--ink) 22%,transparent);padding:10px 16px;font-weight:500;font-size:.9rem}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.q-title{font-family:var(--display);font-size:1.2rem;margin:0 0 4px;font-weight:500}
+.q-sub{margin:0 0 14px;color:var(--ink-soft);font-size:.92rem}
+.list{display:flex;flex-direction:column;gap:9px}
+.sit{appearance:none;cursor:pointer;text-align:left;font:inherit;color:var(--ink);display:flex;gap:12px;align-items:center;
+  padding:13px 14px;border-radius:18px;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);
+  background:color-mix(in srgb,var(--card) 70%,transparent);transition:transform .15s,border-color .15s,background .15s}
+.sit:hover{border-color:var(--accent);transform:translateY(-1px)}
+.sit .ic{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:1.15rem;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--c) 55%,#fff),var(--c))}
+.sit span.t{min-width:0;font-weight:500;line-height:1.3}
+.sit.urgent{border-color:color-mix(in srgb,var(--alert) 55%,transparent)}
+
+/* conversa */
+.bubble{min-height:132px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.line{font-family:var(--display);font-size:1.22rem;line-height:1.4;margin:0;text-wrap:pretty;animation:in .5s ease both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.topic{font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin:0}
+.dots{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dots i{height:5px;flex:1 1 14px;max-width:34px;border-radius:9px;background:color-mix(in srgb,var(--ink) 16%,transparent)}
+.dots i.on{background:var(--accent)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.controls .btn{flex:1 1 auto}
+.row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+.crisis{background:var(--alert-bg);border:1px solid color-mix(in srgb,var(--alert) 50%,transparent);border-radius:22px;padding:16px}
+.crisis h3{margin:0 0 6px;font-size:1.02rem;color:var(--alert)}
+.crisis p{margin:0 0 12px;font-size:.92rem}
+.calls{display:flex;gap:10px;flex-wrap:wrap}
+.call{flex:1 1 140px;text-decoration:none;text-align:center;padding:12px;border-radius:16px;font-weight:700;color:#fff;background:var(--alert);display:flex;flex-direction:column;line-height:1.2}
+.call small{font-weight:500;opacity:.92}
+:root[data-theme="dark"] .call{color:#2a120d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .call{color:#2a120d}}
+
+/* respiração guiada */
+.breath{display:flex;align-items:center;gap:16px;padding:14px 16px}
+.breath .orbb{flex:none;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--sage) 60%,var(--mist));
+  animation:br 10s ease-in-out infinite;box-shadow:0 0 30px color-mix(in srgb,var(--sage) 60%,transparent)}
+@keyframes br{0%,100%{transform:scale(.7)}40%{transform:scale(1.15)}}
+.breath p{margin:0;font-size:.92rem;color:var(--ink-soft)}
+.breath b{color:var(--ink)}
+
+footer{font-size:.78rem;color:var(--ink-soft);text-align:center;padding:4px 8px}
+footer a{color:inherit}
+.tools{display:flex;justify-content:flex-end;gap:8px}
+.chip{appearance:none;font:inherit;font-size:.8rem;cursor:pointer;color:var(--ink);padding:6px 12px;border-radius:99px;background:var(--card);border:1px solid var(--card-line)}
+.chip[aria-pressed="false"]{opacity:.6}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}
+  .speaking #mouthOpen{animation:none;transform:scaleY(.6)}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="brand" id="brandName">Avatar Terapeuta</div>
+    <a class="insta" id="insta" href="#" target="_blank" rel="noopener">@perfil</a>
+  </header>
+
+  <section class="stage" id="stage" aria-label="Avatar do terapeuta">
+    <div class="world" id="world">
+      <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
+      <div class="floor"></div>
+      <div class="puppet" id="puppet">
+        <canvas id="gl" aria-label="Boneco 3D do psicanalista Rafael Zacarias"></canvas>
+        <img id="fallback" alt="Boneco 3D do psicanalista Rafael Zacarias" hidden>
+        <div class="mouth" id="mouth" aria-hidden="true"><span></span></div>
+      </div>
+      <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="badge">Avatar virtual</div>
+    <div class="status" id="status"><span class="dot"></span><span id="statusTxt">Aqui com você</span></div>
+  </section>
+
+  <!-- INÍCIO -->
+  <section class="panel" id="home">
+    <h1 class="name" id="heroName">Rafael Zacarias</h1>
+    <p class="role">Psicanalista · avatar virtual de acolhimento</p>
+    <p class="greet">Olá. Este é um espaço para você ser escutado sem julgamentos. Escolha o que está sentindo e eu converso com você.</p>
+    <button class="btn block" id="start">Falar com o avatar</button>
+  </section>
+
+  <!-- ESCOLHA -->
+  <section class="panel" id="choose" hidden>
+    <h2 class="q-title">O que você está vivendo agora?</h2>
+    <p class="q-sub">Toque na situação que mais se parece com o seu momento.</p>
+    <div class="list" id="list"></div>
+    <div class="row2"><button class="btn ghost" id="finalBtn">Ouvir a mensagem final</button><button class="btn ghost" id="toHome">Voltar</button></div>
+  </section>
+
+  <!-- CONVERSA -->
+  <section id="talk" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="crisis" id="crisis" hidden role="alert">
+      <h3>Se você pode se machucar agora, peça ajuda neste momento</h3>
+      <p>Não fique sozinho. Procure alguém de confiança e afaste objetos ou medicamentos que possa usar para se ferir.</p>
+      <div class="calls">
+        <a class="call" href="tel:192">Ligar 192<small>SAMU, emergência</small></a>
+        <a class="call" href="tel:188">Ligar 188<small>CVV, escuta gratuita</small></a>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="bubble" aria-live="polite">
+        <p class="topic" id="topic"></p>
+        <p class="line" id="line"></p>
+        <div class="dots" id="dots"></div>
+      </div>
+      <div class="controls">
+        <button class="btn ghost" id="prev" aria-label="Frase anterior">‹ Voltar</button>
+        <button class="btn" id="pause">Pausar</button>
+        <button class="btn ghost" id="next" aria-label="Próxima frase">Próxima ›</button>
+      </div>
+      <div class="row2">
+        <button class="btn ghost" id="again">Ouvir de novo</button>
+        <button class="btn ghost" id="other">Escolher outra situação</button>
+      </div>
+    </div>
+    <div class="panel breath" id="breath" hidden>
+      <div class="orbb" aria-hidden="true"></div>
+      <p><b>Respire junto.</b> Inspire pelo nariz enquanto a esfera cresce, solte o ar devagar enquanto ela diminui.</p>
+    </div>
+  </section>
+
+  <div class="tools">
+    <button class="chip" id="voice" aria-pressed="true">Voz ligada</button>
+  </div>
+
+  <footer>
+    Avatar virtual de apoio emocional. Não substitui atendimento psicológico, psiquiátrico ou de emergência.<br>
+    Risco imediato: SAMU <a href="tel:192">192</a> · CVV <a href="tel:188">188</a>.
+  </footer>
+</div>
+
+<script>
+/* ===== Configuração: troque aqui nome e perfil ===== */
+const CONFIG = {
+  nome: "Rafael Zacarias",
+  titulo: "Psicanalista",
+  instagram: "rafael_terapeura7"
+};
+
+const SITUATIONS = [
+  { id:"ansiedade", icon:"🌬️", c:"var(--mist)", title:"Estou tendo uma crise de ansiedade",
+    topic:"Crise de ansiedade", breath:true, lines:[
+    "Antes de tudo, tente não se julgar pelo que está sentindo.",
+    "A ansiedade pode provocar sensações muito intensas, como falta de ar, coração acelerado e medo de que algo ruim aconteça.",
+    "Se puder, sente-se em um lugar seguro, apoie os pés no chão e respire suavemente, sem forçar.",
+    "Procure perceber o ambiente ao seu redor e lembre-se de que você não precisa resolver todos os seus problemas neste momento.",
+    "Acolher o que você sente é o primeiro passo para compreender o que está acontecendo.",
+    "Se os sintomas forem novos, intensos ou diferentes do habitual, procure avaliação médica."]},
+  { id:"angustia", icon:"🌫️", c:"var(--lav)", title:"Sinto angústia, mesmo quando está tudo bem",
+    topic:"Angústia", lines:[
+    "Nem sempre conseguimos identificar imediatamente a origem do nosso sofrimento.",
+    "Às vezes, acumulamos preocupações, frustrações, perdas e conflitos que não encontramos espaço para expressar.",
+    "Mesmo quando tudo parece estar bem por fora, podemos estar enfrentando uma batalha por dentro.",
+    "Na psicanálise, buscamos compreender a história da pessoa, seus sentimentos e os significados que ela atribui às próprias experiências.",
+    "Você não precisa ter todas as respostas agora. Dar nome ao que dói pode ser o começo de uma mudança."]},
+  { id:"vida", icon:"🤍", c:"var(--sand)", urgent:true, title:"Penso em tirar a minha própria vida",
+    topic:"Pensamentos de morte", crisis:true, lines:[
+    "Quero que você saiba de uma coisa: você merece ser ouvido sem julgamentos.",
+    "Você não precisa esconder sua dor nem enfrentar esse momento sozinho.",
+    "Quando esses pensamentos aparecem, é importante levar seu sofrimento a sério e buscar ajuda imediatamente.",
+    "Procure alguém de confiança e diga claramente o que está acontecendo.",
+    "Se sentir que pode agir contra si mesmo, não fique sozinho, afaste-se de objetos ou medicamentos que possa usar para se machucar e procure um pronto-socorro ou ligue para o SAMU, no 192.",
+    "O CVV, pelo 188, também oferece escuta emocional gratuita.",
+    "Sua dor merece cuidado. Você não precisa decidir seu futuro no momento mais difícil da sua vida."]},
+  { id:"vergonha", icon:"🫂", c:"var(--sage)", title:"Tenho vergonha de contar que não estou bem",
+    topic:"Vergonha de pedir ajuda", lines:[
+    "Muitas pessoas aprenderam a esconder suas emoções porque ouviram que precisavam ser fortes o tempo todo.",
+    "Mas sentir medo, tristeza ou angústia não faz de você uma pessoa fraca.",
+    "Você pode começar conversando com alguém em quem confia ou procurando um profissional preparado para acolher seu sofrimento.",
+    "Você não precisa contar tudo de uma vez, nem encontrar as palavras perfeitas.",
+    "Pedir ajuda não diminui a sua força. É uma maneira de cuidar da sua própria vida."]},
+  { id:"paz", icon:"🌅", c:"var(--mist)", title:"Será que vou voltar a ter paz?",
+    topic:"Esperança", lines:[
+    "É possível melhorar, mesmo quando hoje parece difícil acreditar nisso.",
+    "Cada pessoa tem sua história e seu ritmo, e não existe uma solução única para todos.",
+    "O acompanhamento psicológico, a avaliação médica quando necessária, o apoio de pessoas próximas e hábitos que favoreçam o bem-estar podem ajudar muito.",
+    "O objetivo não é exigir que você nunca mais sinta ansiedade, mas ajudá-lo a compreender seus sentimentos, desenvolver recursos para lidar com eles e recuperar sua qualidade de vida.",
+    "O que você sente hoje não precisa definir como será o resto da sua história."]},
+  { id:"psicanalise", icon:"🛋️", c:"var(--lav)", title:"Como a psicanálise pode me ajudar?",
+    topic:"Psicanálise", lines:[
+    "A psicanálise oferece um espaço de escuta no qual você pode falar sobre sua história, suas angústias, seus conflitos e seus sentimentos, sem precisar fingir que está tudo bem.",
+    "Ao longo do processo, podemos buscar compreender padrões emocionais e questões que estejam contribuindo para seu sofrimento.",
+    "Esse trabalho não acontece de um dia para o outro, e cada pessoa tem seu próprio percurso.",
+    "Quando existe crise intensa ou risco de suicídio, a psicanálise não deve ser a única resposta: é importante integrar o cuidado com os serviços de saúde e outros profissionais necessários.",
+    "Meu papel é acolher sua fala, respeitar sua história e ajudá-lo a construir possibilidades de compreensão e cuidado.",
+    "Você não precisa ter vergonha da sua dor. Sua história merece ser escutada e sua vida merece cuidado."]}
+];
+const FINAL = { id:"final", topic:"Mensagem final", lines:[
+  `Eu sou ${CONFIG.nome}, ${CONFIG.titulo.toLowerCase()}, e quero deixar uma mensagem para você.`,
+  "Não desista de si mesmo por estar atravessando um momento difícil.",
+  "Você não precisa carregar tudo sozinho, nem ter todas as respostas hoje.",
+  "Procure ajuda, permita-se ser ouvido e dê a si mesmo a oportunidade de cuidar da sua saúde emocional.",
+  "Você é muito mais do que a dor que está sentindo neste momento."]};
+
+const $ = id => document.getElementById(id);
+const els = { home:$("home"), choose:$("choose"), talk:$("talk"), crisis:$("crisis"), breath:$("breath"),
+  line:$("line"), topic:$("topic"), dots:$("dots"), pause:$("pause"), stage:$("stage"), statusTxt:$("statusTxt") };
+
+document.title = "Avatar Terapeuta";
+$("brandName").textContent = CONFIG.nome;
+$("heroName").textContent = CONFIG.nome;
+document.querySelector(".role").textContent = CONFIG.titulo + " · avatar virtual de acolhimento";
+const ig = $("insta"); ig.textContent = "@" + CONFIG.instagram; ig.href = "https://www.instagram.com/" + CONFIG.instagram;
+
+/* lista de situações */
+SITUATIONS.forEach(s=>{
+  const b=document.createElement("button");
+  b.className="sit"+(s.urgent?" urgent":"");
+  b.style.setProperty("--c",s.c);
+  b.innerHTML=`<span class="ic" aria-hidden="true">${s.icon}</span><span class="t"></span>`;
+  b.querySelector(".t").textContent=s.title;
+  b.onclick=()=>play(s);
+  $("list").appendChild(b);
+});
+
+function show(view){
+  ["home","choose","talk"].forEach(v=>{ els[v].hidden = v!==view; });
+  els.talk.style.display = view==="talk" ? "flex" : "none";
+}
+
+/* voz */
+let voiceOn = true, token = 0, timer = null, paused = false, cur = null, idx = 0, ptVoice = null;
+const player = new Audio();
+document.addEventListener("pointerdown",()=>{ try{ player.src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="; player.play().catch(()=>{}); }catch(e){} },{once:true});
+const AUDIO_MANIFEST = {"intro":[0,6698],"ansiedade-0":[6698,4873],"ansiedade-1":[11571,10208],"ansiedade-2":[21779,7402],"ansiedade-3":[29181,10083],"ansiedade-4":[39264,6681],"ansiedade-5":[45945,7551],"angustia-0":[53496,6984],"angustia-1":[60480,8856],"angustia-2":[69336,7528],"angustia-3":[76864,10785],"angustia-4":[87649,7993],"vida-0":[95642,6424],"vida-1":[102066,5943],"vida-2":[108009,9035],"vida-3":[117044,5682],"vida-4":[122726,15653],"vida-5":[138379,6839],"vida-6":[145218,8424],"vergonha-0":[153642,8729],"vergonha-1":[162371,6210],"vergonha-2":[168581,10025],"vergonha-3":[178606,6458],"vergonha-4":[185064,6704],"paz-0":[191768,6042],"paz-1":[197810,7091],"paz-2":[204901,12346],"paz-3":[217247,14955],"paz-4":[232202,6252],"psicanalise-0":[238454,14549],"psicanalise-1":[253003,10184],"psicanalise-2":[263187,7236],"psicanalise-3":[270423,15515],"psicanalise-4":[285938,9158],"psicanalise-5":[295096,8044],"final-0":[303140,6456],"final-1":[309596,5553],"final-2":[315149,6183],"final-3":[321332,8678],"final-4":[330010,5099]};
+const CH = 3000;
+const chunkCache = {}, clipCache = {};
+function getChunk(n){ return chunkCache[n] || (chunkCache[n] = fetch("c/"+n+".bin").then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); })); }
+function getClip(key){
+  if(clipCache[key]) return clipCache[key];
+  const m = AUDIO_MANIFEST[key]; if(!m) return Promise.reject();
+  const off=m[0], len=m[1], c0=Math.floor(off/CH), c1=Math.floor((off+len-1)/CH);
+  return clipCache[key] = Promise.all(Array.from({length:c1-c0+1},(_,i)=>getChunk(c0+i))).then(bufs=>{
+    const all=new Uint8Array(bufs.reduce((a,b)=>a+b.byteLength,0)); let p=0;
+    bufs.forEach(b=>{ all.set(new Uint8Array(b),p); p+=b.byteLength; });
+    const s=off-c0*CH;
+    return URL.createObjectURL(new Blob([all.slice(s,s+len)],{type:"audio/ogg; codecs=opus"}));
+  });
+}
+const synth = window.speechSynthesis;
+function pickVoice(){
+  if(!synth) return;
+  const vs = synth.getVoices();
+  ptVoice = vs.find(v=>/pt-BR/i.test(v.lang) && /male|masc|daniel|felipe|ricardo|antonio/i.test(v.name))
+         || vs.find(v=>/pt-BR/i.test(v.lang)) || vs.find(v=>/^pt/i.test(v.lang)) || null;
+}
+if(synth){ pickVoice(); synth.onvoiceschanged = pickVoice; }
+
+function setSpeaking(on){
+  speakingNow=on;
+  els.stage.classList.toggle("speaking",on);
+  els.statusTxt.textContent = on ? "Falando com você" : (paused ? "Em pausa" : "Aqui com você");
+}
+function stopAll(){
+  token++; clearTimeout(timer); try{ player.pause(); player.onended=null; player.onerror=null; }catch(e){} if(synth) synth.cancel(); setSpeaking(false);
+}
+function say(text, done, key){
+  const my = ++token; let ended = false;
+  const finish = ()=>{ if(ended||my!==token) return; ended=true; clearTimeout(timer); setSpeaking(false); timer=setTimeout(done,900); };
+  setSpeaking(true);
+  const ms = Math.max(3200, text.length*62);
+  const robot = ()=>{
+    if(ended||my!==token) return;
+    clearTimeout(timer);
+    if(voiceOn && synth){
+      try{
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang="pt-BR"; u.rate=.92; u.pitch=.95; if(ptVoice) u.voice=ptVoice;
+        u.onend=finish; u.onerror=finish;
+        synth.speak(u);
+        timer = setTimeout(finish, ms+6000);
+        return;
+      }catch(e){}
+    }
+    timer = setTimeout(finish, ms);
+  };
+  if(voiceOn && key && AUDIO_MANIFEST[key] && player.canPlayType('audio/ogg; codecs=opus')){
+    timer = setTimeout(robot, 8000);
+    getClip(key).then(url=>{
+      if(ended||my!==token) return;
+      clearTimeout(timer);
+      player.onended = finish; player.onerror = robot;
+      player.src = url;
+      player.play().then(()=>{ timer = setTimeout(finish, ms+8000); }).catch(robot);
+    }).catch(robot);
+    return;
+  }
+  robot();
+}
+
+function render(){
+  const text = cur.lines[idx];
+  els.topic.textContent = cur.topic;
+  els.line.textContent = text;
+  els.line.style.animation="none"; void els.line.offsetWidth; els.line.style.animation="";
+  els.dots.innerHTML = cur.lines.map((_,i)=>`<i class="${i<=idx?"on":""}"></i>`).join("");
+}
+function speakCurrent(){
+  render();
+  say(cur.lines[idx], ()=>{
+    if(idx < cur.lines.length-1){ idx++; speakCurrent(); }
+    else { els.pause.textContent="Repetir"; paused=true; setSpeaking(false); }
+  }, cur.id+"-"+idx);
+}
+function play(s){
+  cur = s; idx = 0; paused = false; stopAll();
+  mood = MOODS[s.id] || MOODS.default;
+  els.crisis.hidden = !s.crisis;
+  els.breath.hidden = !s.breath;
+  els.pause.textContent = "Pausar";
+  show("talk"); window.scrollTo({top:0,behavior:"smooth"});
+  speakCurrent();
+}
+
+$("start").onclick = ()=>{ show("choose"); say("Estou aqui para ouvir você. Qual situação mais se parece com o que você está sentindo?", ()=>{}, "intro"); };
+$("toHome").onclick = ()=>{ stopAll(); show("home"); };
+$("finalBtn").onclick = ()=>{ els.crisis.hidden=true; els.breath.hidden=true; play(FINAL); };
+$("other").onclick = ()=>{ stopAll(); paused=false; show("choose"); };
+$("again").onclick = ()=>{ stopAll(); idx=0; paused=false; els.pause.textContent="Pausar"; speakCurrent(); };
+$("next").onclick = ()=>{ if(idx<cur.lines.length-1){ stopAll(); idx++; paused=false; els.pause.textContent="Pausar"; speakCurrent(); } };
+$("prev").onclick = ()=>{ if(idx>0){ stopAll(); idx--; paused=false; els.pause.textContent="Pausar"; speakCurrent(); } };
+els.pause.onclick = ()=>{
+  if(els.pause.textContent==="Repetir"){ stopAll(); idx=0; paused=false; els.pause.textContent="Pausar"; speakCurrent(); return; }
+  if(!paused){ paused=true; stopAll(); els.pause.textContent="Continuar"; els.statusTxt.textContent="Em pausa"; }
+  else { paused=false; els.pause.textContent="Pausar"; speakCurrent(); }
+};
+$("voice").onclick = e=>{
+  voiceOn = !voiceOn;
+  e.currentTarget.setAttribute("aria-pressed", voiceOn);
+  e.currentTarget.textContent = voiceOn ? "Voz ligada" : "Voz desligada";
+  if(!voiceOn && synth) synth.cancel();
+};
+
+/* ===== boneco animado: malha WebGL + diretor de expressões (fala, olhar, sobrancelhas, piscar, sorriso) ===== */
+const SPRITE_PARTS = 13;
+function loadSprite(){
+  return Promise.all(Array.from({length:SPRITE_PARTS},(_,i)=>fetch("s/"+i+".bin").then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})))
+    .then(b=>URL.createObjectURL(new Blob(b,{type:"image/webp"})));
+}
+const SW=896, SH=1200;
+const puppet=$("puppet"), cv=$("gl"), mouth=$("mouth");
+let tiltX=0, tiltY=0, speakingNow=false;
+const world=$("world");
+function tilt(x,y){
+  const r=els.stage.getBoundingClientRect();
+  tiltX=Math.max(-1,Math.min(1,((x-r.left)/r.width-.5)*2));
+  tiltY=Math.max(-1,Math.min(1,((y-r.top)/r.height-.5)*2));
+  world.style.transform=`rotateY(${tiltX*8}deg) rotateX(${-tiltY*4}deg)`;
+}
+els.stage.addEventListener("pointermove",e=>tilt(e.clientX,e.clientY));
+els.stage.addEventListener("pointerleave",()=>{tiltX=tiltY=0;world.style.transform="";});
+
+/* humor por situação: sorriso, sobrancelhas, preocupação, intensidade de gestos e acenos */
+const MOODS={
+  default:{smile:.45,brow:.10,concern:0,nod:1,gest:1},
+  ansiedade:{smile:.28,brow:.12,concern:.25,nod:.8,gest:.55},
+  angustia:{smile:.22,brow:.10,concern:.35,nod:.8,gest:.7},
+  vida:{smile:.04,brow:.18,concern:.6,nod:.5,gest:.35},
+  vergonha:{smile:.38,brow:.12,concern:.15,nod:1,gest:.85},
+  paz:{smile:.5,brow:.14,concern:0,nod:1,gest:1},
+  psicanalise:{smile:.42,brow:.10,concern:.05,nod:.9,gest:.9}
+};
+let mood=MOODS.default;
+
+const sstep=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t)};
+const st={t:0,talk:0,vw:1,gest:0,head:0,nod:0,blink:0,browL:0,browR:0,concern:0,smile:0,gx:0,gy:0};
+
+/* mesmo cálculo da GPU (mandíbula, cabeça, aceno) para posicionar a boca */
+function warp(px,py){
+  let x=px,y=py;
+  const wj=sstep(386,404,y)*(1-sstep(455,540,y))*(1-sstep(60,130,Math.abs(x-515)));
+  y+=st.talk*13*wj;
+  let hw=1-sstep(430,560,y);
+  hw*=1-sstep(150,230,Math.abs(x-520))*sstep(380,430,y);
+  const dx=x-520, dy=y-500, c=Math.cos(st.head), s=Math.sin(st.head);
+  const rx=520+dx*c-dy*s, ry=500+dx*s+dy*c;
+  x=x+(rx-x)*hw; y=y+(ry-y)*hw;
+  y+=(Math.sin(st.t*1.3)*1.5+st.nod*7)*hw;
+  return [x,y];
+}
+function placeMouth(){
+  const [x,y]=warp(515-31,377);
+  mouth.style.left=(x/SW*100)+"%"; mouth.style.top=(y/SH*100)+"%";
+  mouth.style.transform=`rotate(${st.head}rad) scale(${st.vw},${Math.max(0,st.talk)})`;
+  mouth.style.opacity=st.talk>.05?1:0;
+}
+
+const VS=`attribute vec2 a_uv; uniform vec2 u_size;
+uniform float u_t,u_talk,u_gest,u_head,u_nod,u_blink,u_concern,u_smile; uniform vec2 u_brow,u_gaze; varying vec2 v_uv;
+float ss(float a,float b,float x){float t=clamp((x-a)/(b-a),0.,1.);return t*t*(3.-2.*t);}
+float g(vec2 p,vec2 c,vec2 r){vec2 d=(p-c)/r;return exp(-dot(d,d));}
+vec2 eye(vec2 p,vec2 c,float b){
+  float wx=exp(-pow((p.x-c.x)/40.,2.)); float r=p.y-c.y;
+  float fw=ss(-32.,-18.,r)*(1.-ss(17.,36.,r))*wx;
+  p.y+=fw*((c.y+17.)-p.y)*.97*b; return p;
+}
+void main(){
+  vec2 p=a_uv*u_size;
+  /* sobrancelhas, preocupação */
+  p.y-=u_brow.x*10.*g(p,vec2(447.,236.),vec2(46.,22.));
+  p.y-=u_brow.y*10.*g(p,vec2(560.,228.),vec2(50.,20.));
+  p.y-=u_concern*8.*(g(p,vec2(478.,232.),vec2(22.,16.))+g(p,vec2(528.,226.),vec2(22.,16.)));
+  p.y+=u_concern*3.*(g(p,vec2(420.,245.),vec2(18.,14.))+g(p,vec2(600.,238.),vec2(18.,14.)));
+  /* olhar */
+  p+=u_gaze*vec2(3.5,2.5)*(g(p,vec2(461.,276.),vec2(13.,13.))+g(p,vec2(562.,271.),vec2(13.,13.)));
+  /* piscar / apertar os olhos */
+  p=eye(p,vec2(452.,276.),u_blink); p=eye(p,vec2(561.,270.),u_blink);
+  /* sorriso: cantos da boca e bochechas */
+  float wl=g(p,vec2(458.,384.),vec2(26.,20.)), wr=g(p,vec2(572.,384.),vec2(26.,20.));
+  p.y-=u_smile*5.*(wl+wr); p.x+=u_smile*2.5*(wr-wl);
+  p.y-=u_smile*3.*(g(p,vec2(432.,336.),vec2(34.,28.))+g(p,vec2(600.,336.),vec2(34.,28.)));
+  /* mandíbula */
+  float wj=ss(386.,404.,p.y)*(1.-ss(455.,540.,p.y))*(1.-ss(60.,130.,abs(p.x-515.)));
+  p.y+=u_talk*13.*wj;
+  /* cabeça */
+  float hw=1.-ss(430.,560.,p.y);
+  hw*=1.-ss(150.,230.,abs(p.x-520.))*ss(380.,430.,p.y);
+  vec2 d=p-vec2(520.,500.); float c=cos(u_head),s=sin(u_head);
+  vec2 r=vec2(520.,500.)+vec2(d.x*c-d.y*s,d.x*s+d.y*c);
+  p=mix(p,r,hw);
+  p.y+=(sin(u_t*1.3)*1.5+u_nod*7.)*hw;
+  float chest=ss(500.,700.,p.y)*(1.-ss(900.,1100.,p.y));
+  p.y+=sin(u_t*1.3)*2.5*chest;
+  /* braços */
+  vec2 off=vec2(sin(u_t*1.7)*14.+sin(u_t*.8+1.)*10.,-abs(sin(u_t*1.15))*46.-sin(u_t*2.6)*6.);
+  float wh=exp(-(pow((p.x-330.)/190.,2.)+pow((p.y-1110.)/170.,2.)));
+  float ws=exp(-(pow((p.x-190.)/110.,2.)+pow((p.y-930.)/150.,2.)));
+  p+=off*u_gest*wh+vec2(off.x*.5,off.y*.45)*u_gest*ws;
+  v_uv=a_uv;
+  gl_Position=vec4(p.x/u_size.x*2.-1.,1.-p.y/u_size.y*2.,0.,1.);
+}`;
+const FS=`precision mediump float; uniform sampler2D u_tex; varying vec2 v_uv; void main(){gl_FragColor=texture2D(u_tex,v_uv);}`;
+
+/* diretor de expressões */
+const dir={nextSyl:0,tgtTalk:0,tgtVw:1,sylCount:0,pauseUntil:0,nextBrow:2,browPulse:0,browAsym:0,nextBlink:2.5,blinkT:-1,dbl:false,nextGaze:1.5,gtx:0,gty:0,nodImp:0};
+const VOWELS=[[.95,1.0],[.8,.95],[.7,.68],[.45,1.3],[.6,1.1],[.08,.9]];
+function direct(dt,now,reduce){
+  /* sílabas: aberturas e larguras variadas, com pausas de frase */
+  if(speakingNow){
+    if(now>dir.pauseUntil && now>dir.nextSyl){
+      const v=VOWELS[Math.floor(Math.random()*VOWELS.length)];
+      dir.tgtTalk=v[0]*(.75+Math.random()*.3); dir.tgtVw=v[1];
+      dir.nextSyl=now+75+Math.random()*95; dir.sylCount++;
+      if(v[0]>.7 && Math.random()<.35) dir.nodImp=.45+Math.random()*.55;
+      if(dir.sylCount>7+Math.random()*8){dir.sylCount=0;dir.pauseUntil=now+220+Math.random()*260;dir.tgtTalk=0;dir.tgtVw=1;}
+    }
+    if(now<dir.pauseUntil){dir.tgtTalk=0;}
+  } else {dir.tgtTalk=0;dir.tgtVw=1;}
+  st.talk+=(dir.tgtTalk-st.talk)*Math.min(1,dt*20);
+  st.vw+=(dir.tgtVw-st.vw)*Math.min(1,dt*14);
+  /* aceno com a cabeça nas sílabas fortes */
+  dir.nodImp*=Math.exp(-dt*6); st.nod=Math.max(st.nod*Math.exp(-dt*7),dir.nodImp*mood.nod);
+  /* sobrancelhas: levantam em ênfases */
+  if(speakingNow && st.t>dir.nextBrow){dir.browPulse=.5+Math.random()*.5;dir.browAsym=(Math.random()-.5)*.5;dir.nextBrow=st.t+.9+Math.random()*1.8;}
+  dir.browPulse*=Math.exp(-dt*3.2);
+  const bL=mood.brow+dir.browPulse*(.9+dir.browAsym), bR=mood.brow+dir.browPulse*(.9-dir.browAsym);
+  st.browL+=(bL-st.browL)*Math.min(1,dt*10); st.browR+=(bR-st.browR)*Math.min(1,dt*10);
+  st.concern+=(mood.concern-st.concern)*Math.min(1,dt*3);
+  /* sorriso */
+  const sm=mood.smile+(speakingNow?.12*Math.sin(st.t*2.1)+.06:0);
+  st.smile+=(Math.max(0,sm)-st.smile)*Math.min(1,dt*4);
+  /* piscar (às vezes duplo) */
+  if(dir.blinkT<0 && st.t>dir.nextBlink){dir.blinkT=0;dir.dbl=Math.random()<.2;}
+  let b=0;
+  if(dir.blinkT>=0){dir.blinkT+=dt;const k=dir.blinkT;
+    b=k<.07?k/.07:k<.11?1:Math.max(0,1-(k-.11)/.12);
+    if(k>.25){dir.blinkT=-1;dir.nextBlink=st.t+(dir.dbl?.12:2.2+Math.random()*3.4);dir.dbl=false;}}
+  st.blink=Math.max(b,Math.min(.35,st.smile*.28));
+  /* olhar: mantém contato, desvia levemente ao pensar */
+  if(st.t>dir.nextGaze){
+    if(speakingNow&&Math.random()<.4){dir.gtx=(Math.random()-.5)*1.4;dir.gty=-.2+Math.random()*.7;dir.nextGaze=st.t+.7+Math.random()*1.1;}
+    else {dir.gtx=0;dir.gty=0;dir.nextGaze=st.t+1.2+Math.random()*2;}
+  }
+  st.gx+=(dir.gtx-st.gx)*Math.min(1,dt*9); st.gy+=(dir.gty-st.gy)*Math.min(1,dt*9);
+  /* cabeça */
+  const headT=Math.sin(st.t*.5)*.010+(speakingNow?(Math.sin(st.t*1.9)*.014+Math.sin(st.t*3.1)*.006)*mood.nod:0)+tiltX*.03+st.gx*.004;
+  st.head+=(headT-st.head)*Math.min(1,dt*6);
+  st.gest+=((speakingNow?mood.gest:.1)-st.gest)*Math.min(1,dt*3);
+  if(reduce){st.talk=speakingNow?.5:0;st.gest=0;st.nod=0;st.blink=0;}
+  if(window.__force)Object.assign(st,window.__force);
+}
+
+(function startPuppet(){
+  const gl=cv.getContext("webgl",{premultipliedAlpha:true,alpha:true,antialias:true});
+  const img=new Image();
+  img.onload=()=>{
+    if(!gl){ $("fallback").src=img.src; $("fallback").hidden=false; cv.hidden=true; return; }
+    const mk=(t,src)=>{const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);return s};
+    const pr=gl.createProgram(); gl.attachShader(pr,mk(gl.VERTEX_SHADER,VS)); gl.attachShader(pr,mk(gl.FRAGMENT_SHADER,FS));
+    gl.linkProgram(pr); gl.useProgram(pr);
+    const NX=64, NY=88, uv=[], idx=[];
+    for(let j=0;j<=NY;j++)for(let i=0;i<=NX;i++)uv.push(i/NX,j/NY);
+    for(let j=0;j<NY;j++)for(let i=0;i<NX;i++){const a=j*(NX+1)+i,b=a+1,c=a+NX+1,d=c+1;idx.push(a,b,c,b,d,c);}
+    const vb=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,vb); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(uv),gl.STATIC_DRAW);
+    const ib=gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(idx),gl.STATIC_DRAW);
+    const loc=gl.getAttribLocation(pr,"a_uv"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+    const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+    const U=n=>gl.getUniformLocation(pr,n);
+    const u={size:U("u_size"),t:U("u_t"),talk:U("u_talk"),gest:U("u_gest"),head:U("u_head"),nod:U("u_nod"),blink:U("u_blink"),concern:U("u_concern"),smile:U("u_smile"),brow:U("u_brow"),gaze:U("u_gaze")};
+    function fit(){
+      const d=Math.min(2,window.devicePixelRatio||1), w=Math.round(puppet.clientWidth*d), h=Math.round(puppet.clientHeight*d);
+      if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
+      gl.viewport(0,0,cv.width,cv.height);
+    }
+    let last=performance.now();
+    const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function frame(now){
+      const dt=Math.min(.05,(now-last)/1000); last=now; st.t+=dt;
+      direct(dt,now,reduce);
+      fit();
+      gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform2f(u.size,SW,SH); gl.uniform1f(u.t,st.t); gl.uniform1f(u.talk,st.talk); gl.uniform1f(u.gest,st.gest);
+      gl.uniform1f(u.head,st.head); gl.uniform1f(u.nod,st.nod); gl.uniform1f(u.blink,st.blink);
+      gl.uniform1f(u.concern,st.concern); gl.uniform1f(u.smile,st.smile);
+      gl.uniform2f(u.brow,st.browL,st.browR); gl.uniform2f(u.gaze,st.gx,st.gy);
+      gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
+      placeMouth();
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    window.__puppet={st,setSpeaking:v=>{speakingNow=v}};
+  };
+  loadSprite().then(u=>{img.src=u;}).catch(()=>{});
+})();
+</script>
+</body>
+</html>
